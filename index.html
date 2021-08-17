@@ -7,10 +7,11 @@
             margin: 0;
             padding-bottom: 3rem;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: black;
         }
 
         #form {
-            background: rgba(0, 0, 0, 0.15);
+            background-color: grey;
             padding: 0.25rem;
             position: fixed;
             bottom: 0;
@@ -41,26 +42,43 @@
             margin: 0.25rem;
             border-radius: 3px;
             outline: none;
-            color: #fff;
+            color: white;
         }
 
         #messages {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
+            flex-direction: column;
+            display: flex;
         }
 
-        #messages > li {
+        .message {
             padding: 0.5rem 1rem;
+            border-radius: 10px;
+            color: white;
+            word-wrap: break-word;
+            max-width: calc(100% - 40px - 32px);
         }
 
-        #messages > li:nth-child(odd) {
-            background: #efefef;
+        .message:last-of-type {
+            margin-bottom: 10px;
+        }
+
+        .message_received {
+            background: grey;
+            border-bottom-left-radius: 0;
+            align-self: flex-start;
+            margin: 10px 30px 0 10px;
+        }
+
+        .message_sent {
+            background: dodgerblue;
+            border-bottom-right-radius: 0;
+            align-self: flex-end;
+            margin: 10px 10px 0 30px;
         }
     </style>
   </head>
   <body>
-    <ul id="messages"></ul>
+    <div id="messages"></div>
     <form id="form" action="">
       <input id="input" autocomplete="off"/>
       <button>Send</button>
@@ -73,13 +91,15 @@
         var form = document.getElementById('form');
         var input = document.getElementById('input');
 
-        function appendMessage(msg, own) {
-            var item = document.createElement('li');
+        function appendMessage(msg, type) {
+            var item = document.createElement('div');
             item.textContent = msg;
+            item.classList.add("message");
+            item.classList.add(`message_${type}`);
             messages.appendChild(item);
             window.scrollTo(0, document.body.scrollHeight);
         }
-        
+
         form.addEventListener('submit', function (e) {
             e.preventDefault();
             const msg = input.value;
@@ -87,12 +107,12 @@
                 socket.emit('chat message', msg);
                 input.value = '';
 
-                appendMessage(msg);
+                appendMessage(msg, "sent");
             }
         });
 
         socket.on('chat message', function (msg) {
-            appendMessage(msg);
+            appendMessage(msg, "received");
         });
     </script>
   </body>
