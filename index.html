@@ -196,7 +196,7 @@
         const usernameInput = document.getElementById('username-input');
 
         usernameInput.value = localStorage.getItem("username");
-        
+
         function appendMessage(msg, type) {
             const item = document.createElement('div');
             item.textContent = msg;
@@ -204,8 +204,8 @@
             item.classList.add(`message_${type}`);
             messages.appendChild(item);
             window.scrollTo(0, document.body.scrollHeight);
-        }     
-        
+        }
+
         function appendStatusMessage(msg) {
             const item = document.createElement('div');
             item.textContent = msg;
@@ -240,7 +240,11 @@
         });
 
         socket.on('user connected', function (username) {
-            appendStatusMessage(`${username || "Anonymous"} has joined`);
+            appendStatusMessage(`${username || "Anonymous"} has joined 🎉`);
+        });
+
+        socket.on('user disconnected', function (username) {
+            appendStatusMessage(`${username || "Anonymous"} has left 👋`);
         });
     </script>
   </body>

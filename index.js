@@ -15,8 +15,14 @@ app.get('/', (req, res) => {
 io.on('connection', (socket) => {
     socket.on('user connected', function (username) {
         io.emit('user connected', username);
+
+        socket.on('disconnect', () => {
+            io.emit('user disconnected', username);
+        });
     });
 
+
+    
     socket.on('chat message', (msg) => {
         socket.broadcast.emit('chat message', msg);
     });
