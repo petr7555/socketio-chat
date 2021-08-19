@@ -190,6 +190,7 @@
     </form>
     <script src="/socket.io/socket.io.js"></script>
     <script>
+        // Connect to RASA server
         const socket = io("http://localhost:5005");
 
         const messages = document.getElementById('messages');
@@ -197,6 +198,7 @@
         const messageInput = document.getElementById('message-input');
         const usernameInput = document.getElementById('username-input');
 
+        // Populate username from localStorage
         usernameInput.value = localStorage.getItem("username");
 
         function appendMessage(msg, type) {
@@ -240,34 +242,36 @@
             }
         });
 
-        usernameInput.addEventListener('input', function (e) {
+        // Save username to localStorage as user types
+        usernameInput.addEventListener('input', function () {
             localStorage.setItem("username", usernameInput.value);
         })
 
+        // Send user_connected event right after connect
         socket.on('connect', function () {
-            // Send user connected event right after connect
-            socket.emit('user connected', localStorage.getItem("username"));
+            socket.emit('user_connected', localStorage.getItem("username"));
         });
 
+        // Write any connection errors to the console 
         socket.on('connect_error', (error) => {
             console.error(error);
         });
 
         socket.on('bot_uttered', function (response) {
-            console.debug("bot_uttered", response);
-            if (response.text){
-              appendMessage(response.text, "received");
+            console.log("bot_uttered", response);
+            if (response.text) {
+                appendMessage(response.text, "received");
             }
-            if(response.attachment) {
+            if (response.attachment) {
                 appendImage(response.attachment.payload.src, "received");
             }
         });
 
-        socket.on('user connected', function (username) {
+        socket.on('user_connected', function (username) {
             appendStatusMessage(`${username || "Anonymous"} has joined 🎉`);
         });
 
-        socket.on('user disconnected', function (username) {
+        socket.on('user_disconnected', function (username) {
             appendStatusMessage(`${username || "Anonymous"} has left 👋`);
         });
     </script>

@@ -13,16 +13,19 @@ app.get('/', (req, res) => {
 });
 
 io.on('connection', (socket) => {
-    socket.on('user connected', function (username) {
-        io.emit('user connected', username);
+    socket.on('user_connected', function (username) {
+        // Send event to ALL clients when a new client connects
+        io.emit('user_connected', username);
 
         socket.on('disconnect', () => {
-            io.emit('user disconnected', username);
+            // Send event to ALL clients when client disconnects
+            io.emit('user_disconnected', username);
         });
     });
-    
-    socket.on('chat message', (msg) => {
-        socket.broadcast.emit('chat message', msg);
+
+    socket.on('chat_message', (msg) => {
+        // Send event to all clients apart from the client who emitted the event
+        socket.broadcast.emit('chat_message', msg);
     });
 });
 
