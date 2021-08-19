@@ -63,14 +63,19 @@
         /** END OF RESET **/
 
         body {
+            --white-color: #f3f4fb;
+            --black-color: black;
+            --primary-color: #5a18ee;
+            --secondary-color: #7f7afc;
+            --ternary-color: #8c54f4;
             margin: 0;
             padding-bottom: 3rem;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: black;
+            background-color: var(--primary-color);
         }
 
         #form {
-            background-color: grey;
+            background-color: var(--black-color);
             padding: 0.25rem;
             position: fixed;
             bottom: 0;
@@ -88,6 +93,7 @@
             flex-grow: 1;
             border-radius: 2rem;
             margin: 0.25rem;
+            background-color: var(--white-color);
         }
 
         #message-input:focus {
@@ -95,13 +101,13 @@
         }
 
         #form > button {
-            background: #333;
+            background: var(--ternary-color);
             border: none;
             padding: 0 1rem;
             margin: 0.25rem;
             border-radius: 3px;
             outline: none;
-            color: white;
+            color: var(--white-color);
         }
 
         #messages {
@@ -112,7 +118,6 @@
         .message {
             padding: 0.5rem 1rem;
             border-radius: 10px;
-            color: white;
             word-wrap: break-word;
             max-width: calc(100% - 40px - 32px);
         }
@@ -122,23 +127,24 @@
         }
 
         .message_received {
-            background: grey;
+            background: var(--white-color);
+            color: var(--black-color);
             border-bottom-left-radius: 0;
             align-self: flex-start;
             margin: 10px 30px 0 10px;
         }
 
         .message_sent {
-            background: dodgerblue;
+            color: var(--white-color);
+            background: var(--secondary-color);
             border-bottom-right-radius: 0;
             align-self: flex-end;
             margin: 10px 10px 0 30px;
         }
 
         .header {
-            background-color: grey;
-            color: white;
-            /*height: 50px;*/
+            background-color: var(--black-color);
+            color: var(--white-color);
             text-align: center;
             padding: 12px;
         }
@@ -164,12 +170,13 @@
             height: 20px;
             font-size: 16px;
             padding: 3px;
+            background-color: var(--white-color);
         }
 
         .status-message {
             align-self: center;
             padding: 10px 0;
-            color: white;
+            color: var(--white-color);
             font-style: italic;
         }
 
@@ -177,7 +184,7 @@
   </head>
   <body>
     <header class="header">
-      <p class="title">Chat with people</p>
+      <p class="title">Chat with Rasa chatbot</p>
       <div class="username-form">
         <label class="username-label" for="username-input">Username:</label>
         <input id="username-input" autocomplete="off" type="text"/>
