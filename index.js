@@ -20,8 +20,6 @@ io.on('connection', (socket) => {
             io.emit('user disconnected', username);
         });
     });
-
-
     
     socket.on('chat message', (msg) => {
         socket.broadcast.emit('chat message', msg);
@@ -31,5 +29,5 @@ io.on('connection', (socket) => {
 const PORT = 3002;
 
 server.listen(PORT, () => {
-    console.log(`listening on *:${3002}`);
+    console.log(`listening on *:${PORT}`);
 });
