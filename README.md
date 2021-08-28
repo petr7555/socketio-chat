@@ -11,5 +11,6 @@ additional improvements:
 - TODO Add private messaging.
 
 ## How to run
+- `npm install`
 - `npm run start`
 - visit `http://localhost:3002`
