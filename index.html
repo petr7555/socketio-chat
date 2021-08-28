@@ -4,7 +4,7 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico"/>
     <title>Socket.IO chat</title>
     <style>
-        /** RESET **/
+        /** CSS RESET **/
         /* http://meyerweb.com/eric/tools/css/reset/ 
          v2.0 | 20110126
          License: none (public domain)
@@ -60,22 +60,21 @@
             border-spacing: 0;
         }
 
-        /** END OF RESET **/
+        /** END OF CSS RESET **/
 
         body {
             --white-color: #f3f4fb;
             --black-color: black;
-            --primary-color: #5a18ee;
-            --secondary-color: #7f7afc;
-            --ternary-color: #8c54f4;
-            margin: 0;
-            padding-bottom: 3rem;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--primary-color);
+            --blue-color: #5a18ee;
+            --light-purple-color: #7f7afc;
+            --light-violet-color: #8c54f4;
+            --darker-violet-color: #713dc3;
+            --dark-violet-color: #5d2db0;
+            font-family: Roboto, sans-serif;
+            background-color: var(--blue-color);
         }
 
         #form {
-            background-color: var(--black-color);
             padding: 0.25rem;
             position: fixed;
             bottom: 0;
@@ -84,13 +83,12 @@
             display: flex;
             height: 3rem;
             box-sizing: border-box;
-            backdrop-filter: blur(10px);
+            background-color: var(--black-color);
         }
 
         #message-input {
-            border: none;
-            padding: 0 1rem;
             flex-grow: 1;
+            padding: 0 1rem;
             border-radius: 2rem;
             margin: 0.25rem;
             background-color: var(--white-color);
@@ -100,19 +98,29 @@
             outline: none;
         }
 
-        #form > button {
-            background: var(--ternary-color);
+        .button {
+            background: var(--light-violet-color);
             border: none;
             padding: 0 1rem;
             margin: 0.25rem;
             border-radius: 3px;
             outline: none;
             color: var(--white-color);
+            font: inherit;
+        }
+
+        .button:hover {
+            background: var(--darker-violet-color);
+        }
+
+        .button:active {
+            background: var(--dark-violet-color);
         }
 
         #messages {
-            flex-direction: column;
             display: flex;
+            flex-direction: column;
+            padding: 10px 10px 60px 10px;
         }
 
         .message {
@@ -120,9 +128,6 @@
             border-radius: 10px;
             word-wrap: break-word;
             max-width: calc(100% - 40px - 32px);
-        }
-
-        .message:last-of-type {
             margin-bottom: 10px;
         }
 
@@ -131,15 +136,13 @@
             color: var(--black-color);
             border-bottom-left-radius: 0;
             align-self: flex-start;
-            margin: 10px 30px 0 10px;
         }
 
         .message_sent {
             color: var(--white-color);
-            background: var(--secondary-color);
+            background: var(--light-purple-color);
             border-bottom-right-radius: 0;
             align-self: flex-end;
-            margin: 10px 10px 0 30px;
         }
 
         .header {
@@ -150,7 +153,7 @@
         }
 
         .title {
-            font-size: 24px;
+            font-size: 23px;
         }
 
         .username-form {
@@ -192,12 +195,12 @@
     </header>
     <div id="messages"></div>
     <form id="form" action="">
-      <input id="message-input" autocomplete="off"/>
-      <button>Send</button>
+      <input id="message-input" autocomplete="off" autofocus/>
+      <button class="button">Send</button>
     </form>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        // Connects  to the host that serves the page.
+        // Connects to the host that serves the page.
         const socket = io();
 
         const messages = document.getElementById('messages');
@@ -208,24 +211,17 @@
         // Populate username from localStorage
         usernameInput.value = localStorage.getItem("username");
 
+        function scrollToBottom() {
+            window.scrollTo(0, document.body.scrollHeight);
+        }
+
         function appendMessage(msg, type) {
             const item = document.createElement('div');
             item.textContent = msg;
             item.classList.add("message");
             item.classList.add(`message_${type}`);
             messages.appendChild(item);
-            window.scrollTo(0, document.body.scrollHeight);
-        }
-
-        function appendImage(src, type) {
-            const item = document.createElement('div');
-            item.classList.add("message");
-            item.classList.add(`message_${type}`);
-            const img = document.createElement('img');
-            img.src = src;
-            item.appendChild(img);
-            messages.appendChild(item);
-            window.scrollTo(0, document.body.scrollHeight);
+            scrollToBottom();
         }
 
         function appendStatusMessage(msg) {
@@ -233,7 +229,7 @@
             item.textContent = msg;
             item.classList.add("status-message");
             messages.appendChild(item);
-            window.scrollTo(0, document.body.scrollHeight);
+            scrollToBottom();
         }
 
         form.addEventListener('submit', function (e) {

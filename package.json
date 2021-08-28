@@ -1,7 +1,7 @@
 {
-  "name": "socket-chat-example",
+  "name": "socketio-chat",
   "version": "0.0.1",
-  "description": "my first socket.io app",
+  "description": "Socket.io app inspired by https://socket.io/get-started/chat.",
   "scripts": {
     "start": "nodemon index.js"
   },
