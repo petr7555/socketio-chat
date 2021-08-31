@@ -138,26 +138,41 @@
             padding: 10px 10px 60px 10px;
         }
 
+        .message-wrapper {
+            max-width: calc(100% - 40px - 32px);
+            margin-bottom: 10px;
+        }
+
+        .message-wrapper_sent {
+            align-self: flex-end;
+        }
+
+        .message-wrapper_received {
+            align-self: flex-start;
+        }
+
         .message {
             padding: 0.5rem 1rem;
             border-radius: 10px;
             word-wrap: break-word;
-            max-width: calc(100% - 40px - 32px);
-            margin-bottom: 10px;
         }
 
         .message_received {
             background: var(--white-color);
             color: var(--black-color);
             border-bottom-left-radius: 0;
-            align-self: flex-start;
         }
 
         .message_sent {
             color: var(--white-color);
             background: var(--light-purple-color);
             border-bottom-right-radius: 0;
-            align-self: flex-end;
+        }
+
+        .message-owner {
+            font-size: 14px;
+            color: var(--white-color);
+            padding: 0 0 3px 4px;
         }
 
         .header {
@@ -195,7 +210,6 @@
         .username-label {
             font-size: 23px;
         }
-
 
         #username-input {
             font-size: 20px;
@@ -311,15 +325,14 @@
         const closeBtn = document.getElementById("close-button");
         const userEdit = document.getElementById("user-edit");
 
-        const username = localStorage.getItem("username");
-        usernameTag.innerHTML = username;
+        usernameTag.innerHTML = localStorage.getItem("username");
 
         // Prompt new users to enter their username
-        if (!username) {
+        if (!localStorage.getItem("username")) {
             usernameTag.innerHTML = "Anonymous";
             openModal();
         } else {
-            socket.emit('user_connected', username);
+            socket.emit('user_connected', localStorage.getItem("username"));
         }
 
         function openModal() {
@@ -366,11 +379,31 @@
             window.scrollTo(0, document.body.scrollHeight);
         }
 
-        function appendMessage(msg, type) {
+        function createElementFromHTML(htmlString) {
+            const div = document.createElement('div');
+            div.innerHTML = htmlString.trim();
+            return div.firstChild;
+        }
+
+
+        function appendMessage({username, msg}, type) {
+            const owner = type === "received" ? `<p class="message-owner">${username}</p>` : "";
+            const html = `
+<div class="message-wrapper message-wrapper_${type}">
+  ${owner}
+  <div class="message message_${type}">
+    ${msg}
+  </div>
+</div>`;
+            messages.appendChild(createElementFromHTML(html));
+            scrollToBottom();
+        }
+
+        function appendIsTypingMessage(username) {
             const item = document.createElement('div');
-            item.textContent = msg;
+            item.textContent = `${username} is typing`;
             item.classList.add("message");
-            item.classList.add(`message_${type}`);
+            item.classList.add(`message_received`);
             messages.appendChild(item);
             scrollToBottom();
         }
@@ -387,20 +420,29 @@
             e.preventDefault();
             const msg = messageInput.value;
             if (msg) {
-                socket.emit('chat_message', msg);
+                const data = {username: localStorage.getItem("username"), msg};
+                socket.emit('chat_message', data);
                 messageInput.value = '';
 
-                appendMessage(msg, "sent");
+                appendMessage(data, "sent");
             }
         };
+
+        messageInput.onkeypress = function () {
+            socket.emit('typing', localStorage.getItem("username"));
+        }
 
         // Write any connection errors to the console 
         socket.on('connect_error', (error) => {
             console.error(error);
         });
 
-        socket.on('chat_message', function (message) {
-            appendMessage(message, "received");
+        socket.on('chat_message', function (data) {
+            appendMessage(data, "received");
+        });
+
+        socket.on('typing', function (username) {
+            // appendIsTypingMessage(username);
         });
 
         socket.on('user_connected', function (username) {

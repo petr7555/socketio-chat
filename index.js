@@ -13,7 +13,7 @@ app.get('/', (req, res) => {
 });
 
 io.on('connection', (socket) => {
-    socket.on('user_connected', function (username) {
+    socket.on('user_connected', (username) => {
         // Send event to ALL clients when a new client connects
         io.emit('user_connected', username);
 
@@ -23,9 +23,14 @@ io.on('connection', (socket) => {
         });
     });
 
-    socket.on('chat_message', (msg) => {
+    socket.on('chat_message', (data) => {
         // Send event to all clients apart from the client who emitted the event
-        socket.broadcast.emit('chat_message', msg);
+        socket.broadcast.emit('chat_message', data);
+    });
+
+    socket.on('typing', (username) => {
+        // Send event to all clients apart from the client who emitted the event
+        socket.broadcast.emit('typing', username);
     });
 });
 
