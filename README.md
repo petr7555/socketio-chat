@@ -12,5 +12,5 @@ additional improvements:
 
 ## How to run
 - `npm install`
-- `npm run start`
+- `npm run start:dev`
 - visit `http://localhost:3002`

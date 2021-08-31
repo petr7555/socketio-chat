@@ -348,7 +348,7 @@
 
     <div id="messages"></div>
     <form id="form" action="">
-      <input id="message-input" autocomplete="off" autofocus/>
+      <input id="message-input" autocomplete="off"/>
       <button class="button">Send</button>
     </form>
     <script src="/socket.io/socket.io.js"></script>
@@ -377,6 +377,7 @@
             openModal();
         } else {
             socket.emit('user_connected', localStorage.getItem("username"));
+            messageInput.focus();
         }
 
         function openModal() {
@@ -392,6 +393,7 @@
                 usernameTag.innerHTML = username;
                 socket.emit('user_connected', username);
             }
+            messageInput.focus();
         }
 
         userEdit.onclick = openModal;
