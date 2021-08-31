@@ -28,9 +28,9 @@ io.on('connection', (socket) => {
         socket.broadcast.emit('chat_message', data);
     });
 
-    socket.on('typing', (username) => {
+    socket.on('typing', (data) => {
         // Send event to all clients apart from the client who emitted the event
-        socket.broadcast.emit('typing', username);
+        socket.broadcast.emit('typing', data);
     });
 });
 

@@ -5,8 +5,8 @@ additional improvements:
 - Add support for nicknames.
 - Don’t send the same message to the user that sent it. Instead, append the message directly as soon as he/she presses
   enter.
-  
-- TODO Add “{user} is typing” functionality.
+
+- Add “{user} is typing” functionality.
 - TODO Show who’s online.
 - TODO Add private messaging.
 

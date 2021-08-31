@@ -157,6 +157,12 @@
             word-wrap: break-word;
         }
 
+        .typing-message {
+            border-radius: 10px;
+            padding: 14px;
+            height: 32px;
+        }
+
         .message_received {
             background: var(--white-color);
             color: var(--black-color);
@@ -173,6 +179,41 @@
             font-size: 14px;
             color: var(--white-color);
             padding: 0 0 3px 4px;
+        }
+
+        .typing__dot {
+            float: left;
+            width: 8px;
+            height: 8px;
+            margin: 0 3px;
+            background: var(--grey-color);
+            border-radius: 50%;
+            opacity: 0;
+            animation: loadingFade 1s infinite;
+        }
+
+        .typing__dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .typing__dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing__dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes loadingFade {
+            0% {
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.8;
+            }
+            100% {
+                opacity: 0;
+            }
         }
 
         .header {
@@ -315,6 +356,9 @@
         // Connects to the host that serves the page.
         const socket = io();
 
+        // Maps usernames to typing message nodes
+        const isTypingMap = new Map();
+
         const messages = document.getElementById('messages');
         const form = document.getElementById('form');
         const messageInput = document.getElementById('message-input');
@@ -400,11 +444,19 @@
         }
 
         function appendIsTypingMessage(username) {
-            const item = document.createElement('div');
-            item.textContent = `${username} is typing`;
-            item.classList.add("message");
-            item.classList.add(`message_received`);
-            messages.appendChild(item);
+            const owner = `<p class="message-owner">${username}</p>`;
+            const html = `
+<div class="message-wrapper message-wrapper_received">
+  ${owner}
+  <div class="typing-message message_received">
+      <div class="typing__dot"></div>
+      <div class="typing__dot"></div>
+      <div class="typing__dot"></div>
+  </div>
+</div>`;
+            const isTypingNode = createElementFromHTML(html);
+            isTypingMap.set(username, isTypingNode);
+            messages.appendChild(isTypingNode);
             scrollToBottom();
         }
 
@@ -417,10 +469,16 @@
             scrollToBottom();
         }
 
+        let typing = false;
+        let typingTimeout;
+
         form.onsubmit = function (e) {
             e.preventDefault();
             const msg = messageInput.value;
             if (msg) {
+                clearTimeout(typingTimeout);
+                sendStoppedTypingEven();
+
                 const data = {username: localStorage.getItem("username"), msg};
                 socket.emit('chat_message', data);
                 messageInput.value = '';
@@ -429,8 +487,25 @@
             }
         };
 
+        function sendStoppedTypingEven() {
+            typing = false;
+            socket.emit('typing', {
+                username: localStorage.getItem("username"),
+                typing: false
+            });
+        }
+
         messageInput.onkeypress = function () {
-            socket.emit('typing', localStorage.getItem("username"));
+            if (!typing) {
+                typing = true;
+                socket.emit('typing', {
+                    username: localStorage.getItem("username"),
+                    typing: true
+                });
+            }
+
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(sendStoppedTypingEven, 3000);
         }
 
         // Write any connection errors to the console 
@@ -442,8 +517,13 @@
             appendMessage(data, "received");
         });
 
-        socket.on('typing', function (username) {
-            // appendIsTypingMessage(username);
+        socket.on('typing', function ({username, typing}) {
+            if (typing) {
+                appendIsTypingMessage(username);
+            } else {
+                messages.removeChild(isTypingMap.get(username));
+                scrollToBottom();
+            }
         });
 
         socket.on('user_connected', function (username) {
