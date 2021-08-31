@@ -1,3 +1,7 @@
+See this application live:
+
+[![Heroku](https://pyheroku-badge.herokuapp.com/?app=siochat&style=flat)](https://siochat.herokuapp.com/)
+
 This project is inspired by the official Socket.IO tutorial https://socket.io/get-started/chat and implements the
 additional improvements:
 
