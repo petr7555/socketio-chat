@@ -409,10 +409,11 @@
         }
 
         function appendStatusMessage(msg) {
-            const item = document.createElement('div');
-            item.textContent = msg;
-            item.classList.add("status-message");
-            messages.appendChild(item);
+            const html = `
+<div class="status-message">
+    ${msg}
+</div>`;
+            messages.appendChild(createElementFromHTML(html));
             scrollToBottom();
         }
 
