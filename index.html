@@ -91,26 +91,40 @@
             --grey-color: #aaa;
             font-family: Roboto, sans-serif;
             font-size: 16px;
-        }
-
-        .middle-content {
-            display: flex;
             background-color: var(--blue-color);
-            min-height: calc(100% - 40px);
         }
 
         #online-users-sidebar {
-            display: none;
             position: fixed;
+            width: 0;
+            z-index: 1;
             top: 40px;
             background-color: var(--light-purple-color);
             color: var(--white-color);
             height: calc(100% - 40px - 51px);
-            animation: sidebarOpen 1s forwards;
             overflow-y: auto;
         }
 
-        @keyframes sidebarOpen {
+        .online-users-sidebar_closed {
+            animation: menuClose 0.8s forwards;
+        }
+
+        @keyframes menuClose {
+            0% {
+                width: 300px;
+                opacity: 1;
+            }
+            100% {
+                width: 200px;
+                opacity: 0;
+            }
+        }
+
+        .online-users-sidebar_opened {
+            animation: menuOpen 1s forwards;
+        }
+
+        @keyframes menuOpen {
             0% {
                 width: 200px;
                 opacity: 0;
@@ -121,6 +135,32 @@
             100% {
                 width: 300px;
                 opacity: 1;
+            }
+        }
+
+        .messages_narrow {
+            animation: messagesNarrow 1s forwards;
+        }
+
+        @keyframes messagesNarrow {
+            0% {
+                width: calc(100% - 0px);
+            }
+            100% {
+                width: calc(100% - 300px);
+            }
+        }
+
+        .messages_wide {
+            animation: messagesWide 0.8s forwards;
+        }
+
+        @keyframes messagesWide {
+            0% {
+                width: calc(100% - 300px);
+            }
+            100% {
+                width: 100%;
             }
         }
 
@@ -137,9 +177,6 @@
 
         .online-users-sidebar__info_subtitle {
             font-size: 16px;
-        }
-
-        .online-users {
         }
 
         .online-users__user {
@@ -207,9 +244,14 @@
         #messages {
             display: flex;
             flex-direction: column;
-            padding: 50px 10px 60px 10px;
+            padding: 10px;
             width: 100%;
-            max-height: calc(100% - 40px);
+            position: fixed;
+            top: 40px;
+            right: 0;
+            z-index: 0;
+            height: calc(100% - 40px - 51px);
+            overflow-y: auto;
         }
 
         .message-wrapper {
@@ -297,6 +339,7 @@
             background-color: var(--black-color);
             color: var(--white-color);
             position: fixed;
+            z-index: 1;
             width: 100%;
         }
 
@@ -356,7 +399,7 @@
         .modal {
             display: none; /* Hidden by default */
             position: fixed; /* Stay in place */
-            z-index: 1; /* Sit on top */
+            z-index: 2; /* Sit on top */
             left: 0;
             top: 0;
             width: 100%; /* Full width */
@@ -521,7 +564,7 @@
         };
 
         function scrollToBottom() {
-            window.scrollTo(0, document.body.scrollHeight);
+            messages.scrollTo(0, messages.scrollHeight);
         }
 
         function createElementFromHTML(htmlString) {
@@ -610,11 +653,25 @@
             typingTimeout = setTimeout(sendStoppedTypingEven, 3000);
         }
 
+        let menuIsOpen = false;
+
         function toggleMenu() {
-            if (onlineUsersSidebar.style.display !== "block") {
-                onlineUsersSidebar.style.display = "block";
+            if (menuIsOpen) {
+                // close menu
+                menuIsOpen = false;
+                onlineUsersSidebar.classList.remove("online-users-sidebar_opened");
+                onlineUsersSidebar.classList.add("online-users-sidebar_closed");
+
+                messages.classList.remove("messages_narrow");
+                messages.classList.add("messages_wide");
             } else {
-                onlineUsersSidebar.style.display = "none";
+                // open menu
+                menuIsOpen = true;
+                onlineUsersSidebar.classList.remove("online-users-sidebar_closed");
+                onlineUsersSidebar.classList.add("online-users-sidebar_opened");
+
+                messages.classList.remove("messages_wide");
+                messages.classList.add("messages_narrow");
             }
         }
 
@@ -666,7 +723,6 @@
         });
 
         socket.on('usernames', function (usernames) {
-            console.log(usernames);
             clearOnlineUsers();
             usernames.forEach(username => appendOnlineUser(username));
         });
