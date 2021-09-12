@@ -94,16 +94,34 @@
         }
 
         .middle-content {
-            background-color: var(--blue-color);
             display: flex;
+            background-color: var(--blue-color);
             min-height: calc(100% - 40px);
         }
 
         #online-users-sidebar {
             display: none;
-            width: 400px;
+            position: fixed;
+            top: 40px;
             background-color: var(--light-purple-color);
             color: var(--white-color);
+            height: calc(100% - 40px - 51px);
+            animation: sidebarOpen 1s forwards;
+            overflow-y: auto;
+        }
+
+        @keyframes sidebarOpen {
+            0% {
+                width: 200px;
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.8;
+            }
+            100% {
+                width: 300px;
+                opacity: 1;
+            }
         }
 
         .online-users-sidebar__info {
@@ -189,8 +207,9 @@
         #messages {
             display: flex;
             flex-direction: column;
-            padding: 10px 10px 60px 10px;
+            padding: 50px 10px 60px 10px;
             width: 100%;
+            max-height: calc(100% - 40px);
         }
 
         .message-wrapper {
@@ -277,6 +296,8 @@
             align-items: center;
             background-color: var(--black-color);
             color: var(--white-color);
+            position: fixed;
+            width: 100%;
         }
 
         #menu-button {
