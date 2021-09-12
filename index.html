@@ -343,14 +343,6 @@
             width: 100%;
         }
 
-        #menu-button {
-            height: 40px;
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            padding: 0 25px;
-        }
-
         .title {
             font-size: 24px;
             flex: 2;
@@ -444,12 +436,94 @@
             cursor: pointer;
         }
 
+        /* Menu icon */
+
+        #menu-button {
+            display: flex;
+            align-items: center;
+            box-sizing: content-box;
+        }
+
+        input#menu-input {
+            display: none;
+        }
+
+        .menu-icon {
+            cursor: pointer;
+            height: 24px;
+            padding: 16px;
+            width: 24px;
+            position: fixed;
+            z-index: 200;
+        }
+
+        /* How icon looks without hover */
+        .menu-icon .menu,
+        .menu-icon .menu::before,
+        .menu-icon .menu::after {
+            background: var(--white-color);
+            content: '';
+            display: block;
+            height: 2px;
+            position: absolute;
+            transition: background ease .3s, top ease .3s .3s, transform ease .3s;
+            width: 20px;
+        }
+
+        /* How icon looks with hover */
+        .menu-icon:hover .menu,
+        .menu-icon:hover .menu::before,
+        .menu-icon:hover .menu::after {
+            background: var(--grey-color);
+        }
+
+        /* Position of the whole icon */
+        .menu-icon .menu {
+            left: 18px;
+            top: 27px;
+        }
+
+        /* Top bar */
+        .menu-icon .menu::before {
+            top: -6px;
+        }
+
+        /* Bottom bar */
+        .menu-icon .menu::after {
+            top: 6px;
+        }
+
+        #menu-input:checked + .menu-icon .menu {
+            background: transparent;
+        }
+
+        #menu-input:checked + .menu-icon .menu::before {
+            transform: rotate(45deg);
+        }
+
+        #menu-input:checked + .menu-icon .menu::after {
+            transform: rotate(-45deg);
+        }
+
+        #menu-input:checked + .menu-icon .menu::before,
+        #menu-input:checked + .menu-icon .menu::after {
+            top: 0;
+            transition: top ease .3s, transform ease .3s .3s;
+        }
+
+        /* End of menu icon */
+
     </style>
   </head>
   <body>
     <!-- Header -->
     <header class="header">
-      <span id="menu-button" class="fas fa-bars"></span>
+      <div id="menu-button">
+        <input type="checkbox" id="menu-input">
+        <label for="menu-input" class="menu-icon">
+          <div class="menu"></div>
+        </label>
+      </div>
       <p class="title">Chat with people</p>
       <div class="user-details">
         <p id="username"></p>
@@ -655,7 +729,8 @@
 
         let menuIsOpen = false;
 
-        function toggleMenu() {
+        function toggleMenu(e) {
+            e.preventDefault();
             if (menuIsOpen) {
                 // close menu
                 menuIsOpen = false;
