@@ -75,6 +75,11 @@
 
         /** END OF BOX-SIZING RESET **/
 
+        html,
+        body {
+            height: 100%;
+        }
+
         body {
             --white-color: #f3f4fb;
             --black-color: black;
@@ -85,8 +90,57 @@
             --dark-violet-color: #5d2db0;
             --grey-color: #aaa;
             font-family: Roboto, sans-serif;
-            background-color: var(--blue-color);
             font-size: 16px;
+        }
+
+        .middle-content {
+            background-color: var(--blue-color);
+            display: flex;
+            min-height: calc(100% - 40px);
+        }
+
+        #online-users-sidebar {
+            display: none;
+            width: 400px;
+            background-color: var(--light-purple-color);
+            color: var(--white-color);
+        }
+
+        .online-users-sidebar__info {
+            text-align: center;
+            padding: 10px;
+            background-color: var(--light-purple-color);
+        }
+
+        .online-users-sidebar__info_title {
+            font-size: 20px;
+            padding-bottom: 10px;
+        }
+
+        .online-users-sidebar__info_subtitle {
+            font-size: 16px;
+        }
+
+        .online-users {
+        }
+
+        .online-users__user {
+            padding: 10px;
+            background-color: var(--light-violet-color);
+        }
+
+        .online-users__user:hover,
+        .online-users__user:focus {
+            background: var(--darker-violet-color);
+            outline: none;
+        }
+
+        .online-users__user:active {
+            background: var(--dark-violet-color);
+        }
+
+        #target-user-label {
+            font-weight: bold;
         }
 
         #form {
@@ -136,6 +190,7 @@
             display: flex;
             flex-direction: column;
             padding: 10px 10px 60px 10px;
+            width: 100%;
         }
 
         .message-wrapper {
@@ -222,6 +277,14 @@
             align-items: center;
             background-color: var(--black-color);
             color: var(--white-color);
+        }
+
+        #menu-button {
+            height: 40px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            padding: 0 25px;
         }
 
         .title {
@@ -320,7 +383,9 @@
     </style>
   </head>
   <body>
+    <!-- Header -->
     <header class="header">
+      <span id="menu-button" class="fas fa-bars"></span>
       <p class="title">Chat with people</p>
       <div class="user-details">
         <p id="username"></p>
@@ -345,8 +410,18 @@
       </div>
     </div>
 
+    <div class="middle-content">
+      <div id="online-users-sidebar">
+        <div class="online-users-sidebar__info">
+          <p class="online-users-sidebar__info_title">Online users:</p>
+          <p class="online-users-sidebar__info_subtitle">You are writing to <span id="target-user-label">All</span>.</p>
+        </div>
+        <div id="online-users"></div>
+      </div>
+      <div id="messages"></div>
+    </div>
 
-    <div id="messages"></div>
+    <!-- Message Input -->
     <form id="form" action="">
       <input id="message-input" autocomplete="off"/>
       <button class="button">Send</button>
@@ -368,15 +443,21 @@
         const modal = document.getElementById("username-modal");
         const closeBtn = document.getElementById("close-button");
         const userEdit = document.getElementById("user-edit");
+        const menuBtn = document.getElementById("menu-button");
+        const onlineUsersSidebar = document.getElementById("online-users-sidebar");
+        const onlineUsers = document.getElementById("online-users");
+        const targetUserLabel = document.getElementById("target-user-label");
 
-        usernameTag.innerHTML = localStorage.getItem("username");
+        const storage = sessionStorage;
+
+        usernameTag.innerHTML = storage.getItem("username");
 
         // Prompt new users to enter their username
-        if (!localStorage.getItem("username")) {
+        if (!storage.getItem("username")) {
             usernameTag.innerHTML = "Anonymous";
             openModal();
         } else {
-            socket.emit('user_connected', localStorage.getItem("username"));
+            socket.emit('user_connected', storage.getItem("username"));
             messageInput.focus();
         }
 
@@ -387,12 +468,6 @@
 
         function closeModal() {
             modal.style.display = "none";
-            if (!localStorage.getItem("username")) {
-                const username = usernameInput.value || "Anonymous";
-                localStorage.setItem("username", usernameInput.value);
-                usernameTag.innerHTML = username;
-                socket.emit('user_connected', username);
-            }
             messageInput.focus();
         }
 
@@ -415,8 +490,11 @@
         usernameForm.onsubmit = function (e) {
             e.preventDefault();
             closeModal();
+            if (storage.getItem("username")) {
+                socket.emit('user_disconnected');
+            }
             const username = usernameInput.value || "Anonymous";
-            localStorage.setItem("username", usernameInput.value);
+            storage.setItem("username", usernameInput.value);
             usernameTag.innerHTML = username;
             socket.emit('user_connected', username);
         };
@@ -430,7 +508,6 @@
             div.innerHTML = htmlString.trim();
             return div.firstChild;
         }
-
 
         function appendMessage({username, msg}, type) {
             const owner = type === "received" ? `<p class="message-owner">${username}</p>` : "";
@@ -481,7 +558,7 @@
                 clearTimeout(typingTimeout);
                 sendStoppedTypingEven();
 
-                const data = {username: localStorage.getItem("username"), msg};
+                const data = {username: storage.getItem("username"), msg, targetUser};
                 socket.emit('chat_message', data);
                 messageInput.value = '';
 
@@ -492,8 +569,9 @@
         function sendStoppedTypingEven() {
             typing = false;
             socket.emit('typing', {
-                username: localStorage.getItem("username"),
-                typing: false
+                username: storage.getItem("username"),
+                typing: false,
+                targetUser,
             });
         }
 
@@ -501,13 +579,43 @@
             if (!typing) {
                 typing = true;
                 socket.emit('typing', {
-                    username: localStorage.getItem("username"),
-                    typing: true
+                    username: storage.getItem("username"),
+                    typing: true,
+                    targetUser,
                 });
             }
 
             clearTimeout(typingTimeout);
             typingTimeout = setTimeout(sendStoppedTypingEven, 3000);
+        }
+
+        function toggleMenu() {
+            if (onlineUsersSidebar.style.display !== "block") {
+                onlineUsersSidebar.style.display = "block";
+            } else {
+                onlineUsersSidebar.style.display = "none";
+            }
+        }
+
+        menuBtn.onclick = toggleMenu;
+
+        let targetUser = "All";
+
+        function clearOnlineUsers() {
+            onlineUsers.textContent = "";
+        }
+
+        function appendOnlineUser(username) {
+            const html = `
+<div class="online-users__user" tabindex="0">
+  ${username}
+</div>`;
+            const user = createElementFromHTML(html);
+            user.onclick = function () {
+                targetUser = user.innerText;
+                targetUserLabel.innerText = targetUser;
+            }
+            onlineUsers.appendChild(user);
         }
 
         // Write any connection errors to the console 
@@ -529,11 +637,17 @@
         });
 
         socket.on('user_connected', function (username) {
-            appendStatusMessage(`${username || "Anonymous"} has joined 🎉`);
+            appendStatusMessage(`${username} has joined 🎉`);
         });
 
         socket.on('user_disconnected', function (username) {
-            appendStatusMessage(`${username || "Anonymous"} has left 👋`);
+            appendStatusMessage(`${username} has left 👋`);
+        });
+
+        socket.on('usernames', function (usernames) {
+            console.log(usernames);
+            clearOnlineUsers();
+            usernames.forEach(username => appendOnlineUser(username));
         });
     </script>
   </body>
