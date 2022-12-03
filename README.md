@@ -1,6 +1,4 @@
-See this application live:
-
-[![Heroku](https://pyheroku-badge.herokuapp.com/?app=siochat&style=flat)](https://siochat.herokuapp.com/)
+See this application [live](https://socketio-chat-o4fo.onrender.com).
 
 This project is inspired by the official Socket.IO tutorial https://socket.io/get-started/chat and implements the
 additional improvements:
